@@ -1,5 +1,6 @@
 from django.contrib import admin
-from users import models as user_models
+from users.models import User
 
 
-admin.site.register(user_models.TelegramUser)
+admin.site.register(User)
+

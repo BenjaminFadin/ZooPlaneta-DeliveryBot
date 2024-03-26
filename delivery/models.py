@@ -1,15 +1,17 @@
 from django.db import models
 from shared.models import BaseModel
+from users.models import User
+from mptt.models import MPTTModel, TreeForeignKey
 
 
-class Category(BaseModel):
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='children')
+class Category(MPTTModel):
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, related_name='children', null=True, blank=True)
     title = models.CharField(max_length=50)
     slug = models.SlugField(unique=True)
 
     class Meta:
-        verbose_name = 'Categories'
         verbose_name_plural = 'Category'
+        verbose_name = 'Categories'
 
     def __str__(self):
         return self.title
@@ -40,12 +42,9 @@ class Order(BaseModel):
         (PAYMENT_STATUS_COMPLETE, "Complete"),
         (PAYMENT_STATUS_FAILED, "Failed"),
     ]
-    placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(
         max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
-    customer = models.ForeignKey('users.User', on_delete=models.PROTECT)
-    # ichidan reverse related objectni chaqirish uchun bu yerda order.orderitem_set.quantity deb olinadi.
-    # related name bilan order.items
+    customer = models.ForeignKey(User, on_delete=models.PROTECT)
 
 
 class OrderItem(BaseModel):
@@ -54,6 +53,3 @@ class OrderItem(BaseModel):
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.CharField(max_length=20)
 
-
-class Courier(BaseModel):
-    pass
